@@ -15,6 +15,7 @@ ENV_DIR=$3
 
 # Default Hugo version
 DEFAULT_HUGO_VERSION="0.26"
+DEFAULT_HUGO_ENVIRONMENT="production"
 
 # attempt to extract the HUGO_VERSION parameter form the Heroku configuration vars, fall back to the default version if unavailable
 if [ -d "$ENV_DIR" -a -e "$ENV_DIR/HUGO_VERSION" ]; then
@@ -24,8 +25,14 @@ else
   export HUGO_VERSION=$DEFAULT_HUGO_VERSION
 fi
 
+if [ -d "$ENV_DIR" -a -e "$ENV_DIR/HUGO_ENVIRONMENT" ]; then
+  export HUGO_ENVIRONMENT=$(cat "$ENV_DIR/HUGO_ENVIRONMENT")
+else
+  export HUGO_ENVIRONMENT=$DEFAULT_HUGO_ENVIRONMENT
+fi
+
 # Hugo URL ( download from GH builds )
-RELEASE_NAME=hugo_${HUGO_VERSION}_Linux-64bit
+RELEASE_NAME=hugo_extended_${HUGO_VERSION}_Linux-64bit
 FILE_NAME=${RELEASE_NAME}.tar.gz
 HUGO_PACKAGE=https://github.com/spf13/hugo/releases/download/v${HUGO_VERSION}/${FILE_NAME}
 
@@ -54,4 +61,4 @@ fi
 echo "\n-----> Building the site"
 cd $BUILD_DIR
 mkdir -p static | indent
-./hugo | indent
+./hugo --environment $HUGO_ENVIRONMENT | indent
